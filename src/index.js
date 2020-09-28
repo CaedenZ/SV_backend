@@ -26,6 +26,10 @@ server.use(
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 
+server.get("/", (req, res) => {
+  res.send({ message: "hi" });
+});
+
 //Register
 server.post("/register", async (req, res) => {
   const { email, password } = req.body;
