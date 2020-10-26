@@ -73,26 +73,39 @@ User.getAll = (result) => {
 };
 
 User.updateById = (id, user, result) => {
-  sql.query(
-    "UPDATE users SET email = ?, name = ?, score = ? WHERE id = ?",
-    [user.email, user.name, user.score, id],
-    (err, res) => {
-      if (err) {
-        console.log("error: ", err);
-        result(null, err);
-        return;
-      }
-
-      if (res.affectedRows == 0) {
-        // not found User with the id
-        result({ kind: "not_found" }, null);
-        return;
-      }
-
-      console.log("updated user: ", { id: id, ...user });
-      result(null, { id: id, ...user });
+  sql.query(`SELECT * FROM users WHERE id = ${id}`, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
     }
-  );
+
+    sql.query(
+      "UPDATE users SET email = ?, name = ?, score = ? WHERE id = ?",
+      [
+        user.email || res[0].email,
+        user.name || res[0].name,
+        user.score || res[0].score,
+        id,
+      ],
+      (err, res) => {
+        if (err) {
+          console.log("error: ", err);
+          result(null, err);
+          return;
+        }
+
+        if (res.affectedRows == 0) {
+          // not found User with the id
+          result({ kind: "not_found" }, null);
+          return;
+        }
+
+        console.log("updated user: ", { id: id, ...user });
+        result(null, { id: id, ...user });
+      }
+    );
+  });
 };
 
 User.remove = (id, result) => {
