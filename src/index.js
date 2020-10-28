@@ -8,19 +8,12 @@ const WebSocket = require("ws");
 const server = express();
 const wss = new WebSocket.Server({ server });
 
-var corsOptions = {
-  origin: "*",
-  optionsSuccessStatus: 200,
-};
-
-server.use(cors(corsOptions));
 server.use(cookieparser());
-server.use(
-  cors({
-    origin: "http://localhost:3000",
-    credentials: true,
-  })
-);
+server.use(cors());
+
+server.use(function (req, res, next) {
+  res.header("Acce");
+});
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
