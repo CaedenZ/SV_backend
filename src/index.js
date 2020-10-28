@@ -8,7 +8,12 @@ const WebSocket = require("ws");
 const server = express();
 const wss = new WebSocket.Server({ server });
 
-server.use(cors());
+var corsOptions = {
+  origin: "*",
+  optionsSuccessStatus: 200,
+};
+
+server.use(cors(corsOptions));
 server.use(cookieparser());
 server.use(
   cors({
