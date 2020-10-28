@@ -10,7 +10,7 @@ exports.create = async (req, res) => {
 
   // Create a Card
   const card = new Card({
-    type: req.body.email,
+    type: req.body.type,
     name: req.body.name,
   });
 
@@ -52,17 +52,17 @@ exports.findByID = (req, res) => {
   });
 };
 
-// Find a single Card with a email
+// Find a single Card with a type
 exports.findByType = (req, res) => {
   Card.findByType(req.params.type, (err, data) => {
     if (err) {
       if (err.kind === "not_found") {
         res.status(404).send({
-          message: `Not found Card with email ${req.params.email}.`,
+          message: `Not found Card with type ${req.params.type}.`,
         });
       } else {
         res.status(500).send({
-          message: "Error retrieving Card with email " + req.params.email,
+          message: "Error retrieving Card with type " + req.params.type,
         });
       }
     } else res.send(data);
