@@ -11,10 +11,6 @@ const wss = new WebSocket.Server({ server });
 server.use(cookieparser());
 server.use(cors());
 
-server.use(function (req, res, next) {
-  res.header("Acce");
-});
-
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 
