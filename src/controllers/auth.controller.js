@@ -57,10 +57,17 @@ exports.login = async (req, res) => {
         const refreshtoken = createRefreshToken(data.id);
 
         // put refresh token in db
-        data.refreshtoken = refreshtoken;
+        token = {
+          refreshtoken,
+        };
+        User.updateById(data.id, token, (err, data) => {
+          if (err) {
+            throw err;
+          }
+        });
 
         sendRefreshToken(res, refreshtoken);
-        sendAccessToken(res, req, accesstoken, refreshtoken);
+        sendAccessToken(res, req, accesstoken, refreshtoken, data.name);
       }
     } catch (err) {
       res.send({
