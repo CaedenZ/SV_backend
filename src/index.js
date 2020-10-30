@@ -20,6 +20,8 @@ server.get("/", (req, res) => {
 
 require("./routes/user.routes.js")(server);
 require("./routes/auth.routes.js")(server);
+require("./routes/card.routes.js")(server);
+require("./routes/game.routes.js")(server);
 
 wss.on("connection", function connection(ws) {
   ws.on("message", function incoming(data) {

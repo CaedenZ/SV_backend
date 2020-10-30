@@ -25,6 +25,7 @@ exports.register = async (req, res) => {
     name: req.body.name,
     password: hashpassword,
     score: 0,
+    type: "user",
   });
 
   // Save User in the database
