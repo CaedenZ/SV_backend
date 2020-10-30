@@ -1,21 +1,21 @@
 module.exports = (app) => {
-  const cards = require("../controllers/card.controller.js");
+  const teams = require("../controllers/team.controller.js");
 
   // Create a new Customer
-  app.post("/cards", cards.create);
+  app.post("/teams", teams.create);
 
   // Retrieve all Customers
-  app.get("/cards", cards.findAll);
+  app.get("/teams", teams.findAll);
 
-  // Retrieve a single Customer with cardId
-  app.get("/cards/:cardId", cards.findByID);
+  // Retrieve a single Customer with teamId
+  app.get("/teams/:teamId", teams.findByID);
 
-  // Update a Customer with cardId
-  app.put("/cards/:cardId", cards.update);
+  // Update a Customer with teamId
+  app.put("/teams/:teamId", teams.update);
 
-  // Delete a Customer with cardId
-  app.delete("/cards/:cardId", cards.delete);
+  // Delete a Customer with teamId
+  app.delete("/teams/:teamId", teams.delete);
 
   // Create a new Customer
-  app.delete("/cards", cards.deleteAll);
+  app.delete("/teams", teams.deleteAll);
 };

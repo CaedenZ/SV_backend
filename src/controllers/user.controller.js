@@ -82,6 +82,10 @@ exports.update = (req, res) => {
     });
   }
 
+  const hashpassword = await hash(req.body.password, 10);
+
+  req.body.password = hashpassword;
+  
   User.updateById(req.params.userId, new User(req.body), (err, data) => {
     if (err) {
       if (err.kind === "not_found") {

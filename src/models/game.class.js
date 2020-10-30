@@ -12,7 +12,7 @@ class Game {
     this.team.push(team);
   };
 
-  create = () => {
+  create = (result) => {
     sql.query("INSERT INTO games SET ?", this.game, (err, res) => {
       if (err) {
         console.log("error: ", err);
@@ -22,6 +22,22 @@ class Game {
       console.log("created game: ", { id: res.insertId, ...this.game });
       result(null, { id: res.insertId, ...this.game });
     });
+  };
+
+  getCompanyCard = (result) => {
+    sql.query();
+  };
+
+  getIndustryCard = (result) => {
+    sql.query();
+  };
+
+  getTargetUserCard = (result) => {
+    sql.query();
+  };
+
+  getHotTrendCard = (result) => {
+    sql.query();
   };
 }
 
