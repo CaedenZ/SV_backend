@@ -64,7 +64,7 @@ User.findByEmail = (email, result) => {
 };
 
 User.getAll = (result) => {
-  sql.query("SELECT id, email, name, score FROM users", (err, res) => {
+  sql.query("SELECT id, email, name, score, type FROM users", (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(null, err);
@@ -85,12 +85,13 @@ User.updateById = (id, user, result) => {
     }
 
     sql.query(
-      "UPDATE users SET email = ?, name = ?, password=?, score = ?, refreshtoken = ? WHERE id = ?",
+      "UPDATE users SET email = ?, name = ?, password=?, score = ?, type = ?, refreshtoken = ?, WHERE id = ?",
       [
         user.email ? user.email : res[0].email,
         user.name ? user.name : res[0].name,
         user.password ? user.password : res[0].password,
         user.score ? user.score : res[0].score,
+        user.type ? user.type : res[0].type,
         user.refreshtoken ? user.refreshtoken : res[0].refreshtoken,
         id,
       ],

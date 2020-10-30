@@ -8,6 +8,7 @@ const Team = function (team) {
   this.industry = team.industry;
   this.hotTrend = team.hotTrend;
   this.teamRank = team.teamRank;
+  this.gID = team.gID;
 };
 
 Team.create = (newTeam, result) => {

@@ -16,6 +16,7 @@ exports.create = async (req, res) => {
     industry: req.body.industry,
     hotTrend: req.body.hotTrend,
     teamRank: req.body.teamRank,
+    gID: req.body.gID,
   });
 
   // Save Team in the database
