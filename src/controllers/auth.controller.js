@@ -60,7 +60,7 @@ exports.login = async (req, res) => {
         data.refreshtoken = refreshtoken;
 
         sendRefreshToken(res, refreshtoken);
-        sendAccessToken(res, req, accesstoken);
+        sendAccessToken(res, req, accesstoken, refreshtoken);
       }
     } catch (err) {
       res.send({
