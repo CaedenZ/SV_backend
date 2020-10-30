@@ -49,7 +49,7 @@ exports.login = async (req, res) => {
       } else {
         console.log(await hash(password, 10));
         const valid = await compare(password, data.password).catch((e) => {
-          throw e;
+          throw "Other Error";
         });
         console.log(valid);
         if (!valid) throw new Error("Password not correct");
