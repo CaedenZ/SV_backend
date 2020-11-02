@@ -88,7 +88,7 @@ User.updateById = (id, user, result) => {
     }
 
     sql.query(
-      "UPDATE users SET email = ?, name = ?, password=?, score = ?, type = ?, refreshtoken = ?, WHERE id = ?",
+      "UPDATE users SET email = ?, name = ?, password=?, score = ?, type = ?, refreshtoken = ? WHERE id = ?",
       [
         user.email ? user.email : res[0].email,
         user.name ? user.name : res[0].name,
@@ -96,7 +96,7 @@ User.updateById = (id, user, result) => {
         user.score ? user.score : res[0].score,
         user.type ? user.type : res[0].type,
         user.refreshtoken ? user.refreshtoken : res[0].refreshtoken,
-        parseInt(id),
+        id,
       ],
       (err, res) => {
         if (err) {
