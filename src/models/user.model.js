@@ -46,7 +46,7 @@ User.findById = (userId, result) => {
 
 User.findByEmail = (email, result) => {
   sql.query(
-    `SELECT id, email, password, name, score FROM users WHERE email = \"${email}\"`,
+    `SELECT id, email, password, name,type, score FROM users WHERE email = \"${email}\"`,
     (err, res) => {
       if (err) {
         console.log("error: ", err);
