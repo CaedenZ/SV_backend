@@ -39,6 +39,17 @@ exports.findAll = (req, res) => {
   });
 };
 
+// Retrieve top 20 Users from the database.
+exports.findTop20 = (req, res) => {
+  User.getTop20((err, data) => {
+    if (err)
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving users.",
+      });
+    else res.send(data);
+  });
+};
+
 // Find a single User with a userId
 exports.findByID = (req, res) => {
   User.findById(req.params.userId, (err, data) => {

@@ -66,6 +66,22 @@ User.findByEmail = (email, result) => {
   );
 };
 
+User.getTop20 = (result) => {
+  sql.query(
+    "SELECT id,name, score FROM users ORDER BY score DESC LIMIT 20",
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(null, err);
+        return;
+      }
+
+      console.log("users: ", res);
+      result(null, res);
+    }
+  );
+};
+
 User.getAll = (result) => {
   sql.query("SELECT id, email, name, score, type FROM users", (err, res) => {
     if (err) {

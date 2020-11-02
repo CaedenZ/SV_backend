@@ -7,6 +7,9 @@ module.exports = (app) => {
   // Retrieve all Users
   app.get("/users", users.findAll);
 
+  // Retrieve Top 20 Users
+  app.get("/userstop20", users.findTop20);
+
   // Retrieve a single User with userId
   app.get("/users/:userId", users.findByID);
 
