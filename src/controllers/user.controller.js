@@ -81,10 +81,11 @@ exports.update = async (req, res) => {
       message: "Content can not be empty!",
     });
   }
+  if (req.body.password) {
+    const hashpassword = await hash(req.body.password, 10);
 
-  const hashpassword = await hash(req.body.password, 10);
-
-  req.body.password = hashpassword;
+    req.body.password = hashpassword;
+  }
 
   User.updateById(req.params.userId, new User(req.body), (err, data) => {
     if (err) {
