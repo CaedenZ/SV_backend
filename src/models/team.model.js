@@ -63,7 +63,7 @@ Team.updateById = (id, team, result) => {
     }
 
     sql.query(
-      "UPDATE teams SET teamScore = ?, companyName = ?, targetUser = ?, industry = ?, hotTrend = ?,  WHERE id = ?",
+      "UPDATE teams SET teamScore = ?, companyName = ?, targetUser = ?, industry = ?, hotTrend = ? WHERE id = ?",
       [
         team.teamScore ? team.teamScore : res[0].teamScore,
         team.companyName ? team.companyName : res[0].companyName,
