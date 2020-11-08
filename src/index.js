@@ -4,12 +4,20 @@ const cookieparser = require("cookie-parser");
 const cors = require("cors");
 const http = require("http");
 const WebSocket = require("ws");
+const session = require("express-session");
 
 const app = express();
+
+const sessionParser = session({
+  saveUninitialized: false,
+  secret: "$eCuRiTy",
+  resave: false,
+});
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+app.use(sessionParser);
 app.use(cookieparser());
 app.use(cors());
 

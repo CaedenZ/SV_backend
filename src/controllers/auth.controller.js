@@ -66,6 +66,9 @@ exports.login = async (req, res) => {
           }
         });
 
+        console.log(`Updating session for user ${data.name}`);
+        req.session.userId = data.name;
+
         sendRefreshToken(res, refreshtoken);
         sendAccessToken(
           res,

@@ -30,6 +30,7 @@ exports.create = async (req, res) => {
 
 // Retrieve all Teams from the database.
 exports.findAll = (req, res) => {
+  console.log(req.session);
   Team.getAll((err, data) => {
     if (err)
       res.status(500).send({
