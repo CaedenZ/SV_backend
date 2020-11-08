@@ -65,7 +65,7 @@ exports.update = (req, res) => {
     });
   }
 
-  Team.updateById(req.params.teamId, new Team(req.body), (err, data) => {
+  Team.updateById(int(req.params.teamId), new Team(req.body), (err, data) => {
     if (err) {
       if (err.kind === "not_found") {
         res.status(404).send({
