@@ -15,7 +15,6 @@ exports.create = async (req, res) => {
     targetUser: req.body.targetUser,
     industry: req.body.industry,
     hotTrend: req.body.hotTrend,
-    teamRank: req.body.teamRank,
     gID: req.body.gID,
   });
 

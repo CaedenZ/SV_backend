@@ -7,7 +7,6 @@ const Team = function (team) {
   this.targetUser = team.targetUser;
   this.industry = team.industry;
   this.hotTrend = team.hotTrend;
-  this.teamRank = team.teamRank;
   this.gID = team.gID;
 };
 
@@ -64,14 +63,13 @@ Team.updateById = (id, team, result) => {
     }
 
     sql.query(
-      "UPDATE teams SET teamScore = ?, companyName = ?, targetUser = ?, industry = ?, hotTrend = ?, teamRank = ?,  WHERE id = ?",
+      "UPDATE teams SET teamScore = ?, companyName = ?, targetUser = ?, industry = ?, hotTrend = ?,  WHERE id = ?",
       [
         team.teamScore ? team.teamScore : res[0].teamScore,
         team.companyName ? team.companyName : res[0].companyName,
         team.targetUser ? team.targetUser : res[0].targetUser,
         team.industry ? team.industry : res[0].industry,
         team.hotTrend ? team.hotTrend : res[0].hotTrend,
-        team.teamRank ? team.teamRank : res[0].teamRank,
         id,
       ],
       (err, res) => {
