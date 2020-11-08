@@ -14,9 +14,6 @@ const sessionParser = session({
   resave: false,
 });
 
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
-
 app.use(sessionParser);
 app.use(cookieparser());
 app.use(cors());
@@ -27,6 +24,8 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.send({ message: "hi" });
 });
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
 
 require("./routes/user.routes.js")(app);
 require("./routes/auth.routes.js")(app);
