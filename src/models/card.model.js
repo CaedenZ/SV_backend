@@ -56,6 +56,27 @@ Card.findByType = (type, result) => {
   });
 };
 
+Card.getRandomCard = (teamNumber, type, result) => {
+  sql.query(
+    `SELECT * FROM cards WHERE type = \"${type}\" ORDER BY RAND() LIMIT ${teamNumber}`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+
+      if (res.length) {
+        result(null, res);
+        return;
+      }
+
+      // not found Card with the id
+      result({ kind: "not_found" }, null);
+    }
+  );
+};
+
 Card.getAll = (result) => {
   sql.query("SELECT * FROM cards", (err, res) => {
     if (err) {
