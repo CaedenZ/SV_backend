@@ -4,6 +4,7 @@ const Card = require("../models/card.model");
 let map = new Map();
 let team = {};
 let cards = {};
+let voted = [];
 
 getCards = () => {
   var size = Object.keys(team).length;
@@ -25,6 +26,9 @@ getCards = () => {
                   chunkArray(data, size, cards, "card");
                   console.log(cards);
                   for (var key in team) {
+                    team[key].hotTrend = cards[key].find(
+                      (e) => e.type === "Hot Trend"
+                    ).name;
                     team[key].members.forEach((member) => {
                       data = cards[key];
                       ret = {
@@ -44,6 +48,33 @@ getCards = () => {
     }
   });
 };
+
+receiveCard = (name, data) => {
+  switch (data.type) {
+    case "Company Name":
+      team[getTeam(name)].companyName = data.name;
+      break;
+    case "Target User":
+      team[getTeam(name)].targetUser = data.name;
+      break;
+    case "Industry":
+      team[getTeam(name)].industry = data.name;
+      break;
+  }
+
+  team[getTeam(name)].members.forEach((member) => {
+    ret = {
+      type: "select",
+      data: data,
+    };
+    map.get(member).send(JSON.stringify(ret));
+  });
+};
+
+getTeam = (name) => {
+  return Object.keys(team).find((key) => team[key].members.includes(name));
+};
+
 getUniqueID = () => {
   function s4() {
     return Math.floor((1 + Math.random()) * 0x10000)
@@ -51,6 +82,29 @@ getUniqueID = () => {
       .substring(1);
   }
   return s4() + s4() + "-" + s4();
+};
+
+startVote = () => {
+  for (var key in team) {
+    team[key].members.forEach((member) => {
+      var duplicateteam = Object.assign({}, team);
+      delete duplicateteam[key];
+      data = duplicateteam;
+      ret = {
+        type: "startvote",
+        data: data,
+      };
+      map.get(member).send(JSON.stringify(ret));
+    });
+  }
+};
+
+vote = (name, data) => {
+  if (!voted.includes(name)) {
+    team[data.team].score += 1;
+    voted.push(name);
+  }
+  console.log(team);
 };
 
 assignTeams = (teamNumber) => {
@@ -61,6 +115,7 @@ assignTeams = (teamNumber) => {
     tmp[i] = {
       members: [],
       cards: { companyName: "", targetUser: "", industry: "", hotTrend: "" },
+      score: 0,
     };
     cards[i] = [];
   }
@@ -107,7 +162,6 @@ module.exports = (wss) => {
   });
 
   wss.on("connection", function connection(ws, req) {
-    console.log(req.session);
     if (req.session) {
       const userId = req.session.userId;
 
@@ -116,49 +170,84 @@ module.exports = (wss) => {
 
     ws.on("message", function incoming(data) {
       if (!ws.name) {
-        console.log(data);
         ws.name = data;
         map.set(ws.name, ws);
       } else {
         received = JSON.parse(data);
-        if (received.type === "message") {
-          wss.clients.forEach(function each(client) {
-            if (client.readyState === WebSocket.OPEN) {
-              msg = {
-                user: received.data.user,
-                text: received.data.text,
-              };
-              ret = {
-                type: "message",
-                data: msg,
-              };
-              console.log(ret);
-              client.send(JSON.stringify(ret));
-            }
-          });
-        } else if (received.type === "team") {
-          assignTeams(received.data);
-          wss.clients.forEach(function each(client) {
-            if (client.readyState === WebSocket.OPEN) {
-              ret = {
-                type: "team",
-                data: team,
-              };
-              client.send(JSON.stringify(ret));
-            }
-          });
-        } else if (received.type === "start") {
-          getCards();
-          wss.clients.forEach(function each(client) {
-            if (client.readyState === WebSocket.OPEN) {
-              ret = {
-                type: "start",
-              };
-              client.send(JSON.stringify(ret));
-            }
-          });
-        } else if (received.type === "card") {
-          getCards();
+        switch (received.type) {
+          case "message":
+            wss.clients.forEach(function each(client) {
+              if (client.readyState === WebSocket.OPEN) {
+                msg = {
+                  user: received.data.user,
+                  text: received.data.text,
+                };
+                ret = {
+                  type: "message",
+                  data: msg,
+                };
+                client.send(JSON.stringify(ret));
+              }
+            });
+            break;
+          case "team":
+            assignTeams(received.data);
+            wss.clients.forEach(function each(client) {
+              if (client.readyState === WebSocket.OPEN) {
+                ret = {
+                  type: "team",
+                  data: team,
+                };
+                client.send(JSON.stringify(ret));
+              }
+            });
+            break;
+          case "start":
+            getCards();
+            wss.clients.forEach(function each(client) {
+              if (client.readyState === WebSocket.OPEN) {
+                ret = {
+                  type: "start",
+                };
+                client.send(JSON.stringify(ret));
+              }
+            });
+            break;
+          case "card":
+            getCards();
+            break;
+          case "select":
+            console.log(received.data);
+            receiveCard(ws.name, received.data);
+            break;
+          case "review":
+            wss.clients.forEach(function each(client) {
+              if (client.readyState === WebSocket.OPEN) {
+                ret = {
+                  type: "review",
+                };
+                client.send(JSON.stringify(ret));
+              }
+            });
+            break;
+          case "startvote":
+            console.log("startvote");
+            startVote();
+            break;
+          case "vote":
+            vote(ws.name, received.data);
+            break;
+          case "result":
+            wss.clients.forEach(function each(client) {
+              if (client.readyState === WebSocket.OPEN) {
+                ret = {
+                  type: "result",
+                  data: team,
+                };
+                client.send(JSON.stringify(ret));
+              }
+            });
+            break;
         }
       }
     });
