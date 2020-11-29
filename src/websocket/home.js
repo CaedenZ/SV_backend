@@ -1,10 +1,18 @@
 const WebSocket = require("ws");
 const Card = require("../models/card.model");
+const Game = require("../models/game.class");
 
 let map = new Map();
 let team = {};
 let cards = {};
 let voted = [];
+let game = new Game();
+let usermap = new Map();
+let adminmap = new Map();
+
+initGame = () => {
+  game = new Game();
+};
 
 getCards = () => {
   var size = Object.keys(team).length;
@@ -108,7 +116,7 @@ vote = (name, data) => {
 };
 
 assignTeams = (teamNumber) => {
-  let array = [...map.keys()];
+  let array = [...usermap.keys()];
   shuffle(array);
   tmp = {};
   for (var i = 0; i < teamNumber; i++) {
@@ -175,6 +183,14 @@ module.exports = (wss) => {
       } else {
         received = JSON.parse(data);
         switch (received.type) {
+          case "user":
+            ws.name = received.data;
+            usermap.set(ws.name, ws);
+            break;
+          case "admin":
+            ws.name = received.data;
+            adminmap.set(ws.name, ws);
+            break;
           case "message":
             wss.clients.forEach(function each(client) {
               if (client.readyState === WebSocket.OPEN) {
@@ -203,6 +219,7 @@ module.exports = (wss) => {
             });
             break;
           case "start":
+            initGame();
             getCards();
             wss.clients.forEach(function each(client) {
               if (client.readyState === WebSocket.OPEN) {
@@ -219,6 +236,13 @@ module.exports = (wss) => {
           case "select":
             console.log(received.data);
             receiveCard(ws.name, received.data);
+            adminmap.forEach((value, key, map) => {
+              ret = {
+                type: "teamselecting",
+                data: team,
+              };
+              value.send(JSON.stringify(ret));
+            });
             break;
           case "review":
             wss.clients.forEach(function each(client) {
@@ -238,6 +262,8 @@ module.exports = (wss) => {
             vote(ws.name, received.data);
             break;
           case "result":
+            game.setTeam(team);
+            game.create();
             wss.clients.forEach(function each(client) {
               if (client.readyState === WebSocket.OPEN) {
                 ret = {
@@ -247,6 +273,9 @@ module.exports = (wss) => {
                 client.send(JSON.stringify(ret));
               }
             });
+            team = {};
+            cards = {};
+            voted = [];
             break;
         }
       }
@@ -254,6 +283,8 @@ module.exports = (wss) => {
 
     ws.on("close", function () {
       map.delete(ws.name);
+      usermap.delete(ws.name);
+      adminmap.delete(ws.name);
     });
   });
 };

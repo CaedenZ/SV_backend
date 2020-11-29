@@ -32,6 +32,7 @@ require("./routes/auth.routes.js")(app);
 require("./routes/card.routes.js")(app);
 require("./routes/game.routes.js")(app);
 require("./routes/team.routes.js")(app);
+require("./routes/download.routes.js")(app);
 
 require("./websocket/home.js")(wss);
 
