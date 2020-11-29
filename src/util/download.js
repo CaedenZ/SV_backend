@@ -1,4 +1,5 @@
 const Parser = require("json2csv");
+
 exports.downloadResource = (res, fileName, fields, data) => {
   const json2csv = new Parser({ fields });
   const csv = json2csv.parse(data);

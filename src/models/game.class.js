@@ -2,7 +2,7 @@ const sql = require("./db.js");
 // constructor
 class Game {
   constructor() {
-    this.date = Date.now();
+    this.date = new Date();
     this.status = "End";
     this.teams = {};
   }
