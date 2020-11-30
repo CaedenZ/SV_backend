@@ -47,11 +47,11 @@ exports.login = async (req, res) => {
         if (err.kind === "not_found") throw new Error("User not found");
         else throw new Error("Error when retrieving");
       } else {
+        console.log(password);
         console.log(await hash(password, 10));
         const valid = await compare(password, data.password).catch((e) => {
           throw "Other Error";
         });
-        console.log(valid);
         if (!valid) throw new Error("Password not correct");
         const accesstoken = createAccessToken(data.id);
         const refreshtoken = createRefreshToken(data.id);
