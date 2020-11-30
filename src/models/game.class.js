@@ -7,7 +7,11 @@ class Game {
     this.teams = {};
   }
 
-  create = () => {
+  setTeam(teams) {
+    this.teams = teams;
+  }
+
+  create() {
     console.log(this);
     let data = {
       date: this.date,
@@ -22,13 +26,9 @@ class Game {
       console.log("created game: ", { id: res.insertId, ...this.game });
       this.updateTeam(res.insertId);
     });
-  };
+  }
 
-  setTeam = (teams) => {
-    this.teams = teams;
-  };
-
-  updateTeam = (gid) => {
+  updateTeam(gid) {
     for (var key in this.teams) {
       let data = {
         teamScore: this.teams[key].score,
@@ -50,11 +50,9 @@ class Game {
         });
       });
     }
-  };
+  }
 
-  getUser = (name) => {};
-
-  updateMember = async (name, tid, score) => {
+  async updateMember(name, tid, score) {
     sql.query(
       `SELECT id, score FROM users WHERE name = \"${name}\"`,
       (err, res) => {
@@ -84,9 +82,9 @@ class Game {
         }
       }
     );
-  };
+  }
 
-  updateScore = (id, user) => {
+  updateScore(id, user) {
     sql.query(`SELECT * FROM users WHERE id = ${id}`, (err, res) => {
       if (err) {
         console.log("error: ", err);
@@ -119,23 +117,7 @@ class Game {
         }
       );
     });
-  };
-
-  getCompanyCard = (result) => {
-    sql.query();
-  };
-
-  getIndustryCard = (result) => {
-    sql.query();
-  };
-
-  getTargetUserCard = (result) => {
-    sql.query();
-  };
-
-  getHotTrendCard = (result) => {
-    sql.query();
-  };
+  }
 }
 
 module.exports = Game;
