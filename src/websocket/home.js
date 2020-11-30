@@ -14,6 +14,20 @@ initGame = () => {
   game = new Game();
 };
 
+swapteam = (nameA, nameB) => {
+  const keyA = getTeam(nameA);
+  const keyB = getTeam(nameB);
+  const indexA = team[keyA].members.indexOf(nameA);
+  if (indexA > -1) {
+    team[keyA].members.splice(indexA, 1);
+  }
+  const indexB = team[keyB].members.indexOf(nameB);
+  if (indexB > -1) {
+    team[keyB].members.splice(indexB, 1);
+  }
+  team[keyA].members.push(nameB);
+  team[keyB].members.push(nameA);
+};
 getCards = () => {
   var size = Object.keys(team).length;
   Card.getRandomCard(size * 2, "Company Name", (err, data) => {
@@ -208,6 +222,18 @@ module.exports = (wss) => {
             break;
           case "team":
             assignTeams(received.data);
+            wss.clients.forEach(function each(client) {
+              if (client.readyState === WebSocket.OPEN) {
+                ret = {
+                  type: "team",
+                  data: team,
+                };
+                client.send(JSON.stringify(ret));
+              }
+            });
+            break;
+          case "swap":
+            swapteam(received.data.nameA, received.data.nameB);
             wss.clients.forEach(function each(client) {
               if (client.readyState === WebSocket.OPEN) {
                 ret = {
