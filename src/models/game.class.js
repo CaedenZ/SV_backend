@@ -7,10 +7,6 @@ class Game {
     this.teams = {};
   }
 
-  setTeam = (teams) => {
-    this.teams = teams;
-  };
-
   create = () => {
     console.log(this);
     let data = {
@@ -26,6 +22,10 @@ class Game {
       console.log("created game: ", { id: res.insertId, ...this.game });
       this.updateTeam(res.insertId);
     });
+  };
+
+  setTeam = (teams) => {
+    this.teams = teams;
   };
 
   updateTeam = (gid) => {
