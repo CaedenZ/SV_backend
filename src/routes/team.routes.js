@@ -8,7 +8,7 @@ module.exports = (app) => {
   app.get("/teams", teams.findAll);
 
   // Retrieve a single Customer with teamId
-  app.get("/teams/:gID", teams.findBGid);
+  app.get("/teams/:gID", teams.findByGID);
 
   // Update a Customer with teamId
   app.put("/teams/:teamId", teams.update);
