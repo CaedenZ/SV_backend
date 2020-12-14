@@ -10,6 +10,9 @@ module.exports = (app) => {
   // Retrieve a single Customer with teamId
   app.get("/teams/:teamId", teams.findByID);
 
+  // Retrieve a single Customer with teamId
+  app.get("/teams/:gID", teams.findBGid);
+
   // Update a Customer with teamId
   app.put("/teams/:teamId", teams.update);
 

@@ -57,6 +57,23 @@ exports.findByID = (req, res) => {
   });
 };
 
+// Find a single Team with a teamId
+exports.findByGID = (req, res) => {
+  Team.findBGid(req.params.gID, (err, data) => {
+    if (err) {
+      if (err.kind === "not_found") {
+        res.status(404).send({
+          message: `Not found Team with gid ${req.params.gID}.`,
+        });
+      } else {
+        res.status(500).send({
+          message: "Error retrieving Team with gid " + req.params.gID,
+        });
+      }
+    } else res.send(data);
+  });
+};
+
 // Update a Team identified by the teamId in the request
 exports.update = (req, res) => {
   // Validate Request

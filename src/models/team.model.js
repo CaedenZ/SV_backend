@@ -41,6 +41,25 @@ Team.findById = (teamId, result) => {
     result({ kind: "not_found" }, null);
   });
 };
+
+Team.findByGid = (gId, result) => {
+  sql.query(`SELECT * FROM teams WHERE gid = ${gId}`, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+
+    if (res.length) {
+      result(null, res);
+      return;
+    }
+
+    // not found Team with the id
+    result({ kind: "not_found" }, null);
+  });
+};
+
 Team.getAll = (result) => {
   sql.query("SELECT * FROM teams", (err, res) => {
     if (err) {
