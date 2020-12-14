@@ -59,7 +59,7 @@ exports.findByID = (req, res) => {
 
 // Find a single Team with a teamId
 exports.findByGID = (req, res) => {
-  Team.findBGid(req.params.gID, (err, data) => {
+  Team.findByGid(req.params.gID, (err, data) => {
     if (err) {
       if (err.kind === "not_found") {
         res.status(404).send({
