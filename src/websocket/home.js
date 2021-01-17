@@ -93,6 +93,18 @@ receiveCard = (name, data) => {
   });
 };
 
+receiveName = (name, data) => {
+  team[getTeam(name)].name = data;
+
+  team[getTeam(name)].members.forEach((member) => {
+    ret = {
+      type: "teamname",
+      data: data,
+    };
+    map.get(member).send(JSON.stringify(ret));
+  });
+};
+
 getTeam = (name) => {
   return Object.keys(team).find((key) => team[key].members.includes(name));
 };
@@ -135,6 +147,7 @@ assignTeams = (teamNumber) => {
   tmp = {};
   for (var i = 0; i < teamNumber; i++) {
     tmp[i] = {
+      name: "",
       members: [],
       cards: { companyName: "", targetUser: "", industry: "", hotTrend: "" },
       score: 0,
@@ -262,6 +275,16 @@ module.exports = (wss) => {
           case "select":
             console.log(received.data);
             receiveCard(ws.name, received.data);
+            adminmap.forEach((value, key, map) => {
+              ret = {
+                type: "teamselecting",
+                data: team,
+              };
+              value.send(JSON.stringify(ret));
+            });
+            break;
+          case "teamname":
+            receiveName(ws.name, received.data);
             adminmap.forEach((value, key, map) => {
               ret = {
                 type: "teamselecting",
