@@ -213,6 +213,15 @@ module.exports = (wss) => {
           case "user":
             ws.name = received.data;
             usermap.set(ws.name, ws);
+            wss.clients.forEach(function each(client) {
+              if (client.readyState === WebSocket.OPEN) {
+                ret = {
+                  type: "number",
+                  data: usermap.size,
+                };
+                client.send(JSON.stringify(ret));
+              }
+            });
             break;
           case "admin":
             ws.name = received.data;
