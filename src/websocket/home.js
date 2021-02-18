@@ -217,7 +217,7 @@ module.exports = (wss) => {
               if (client.readyState === WebSocket.OPEN) {
                 ret = {
                   type: "number",
-                  data: usermap.size,
+                  data: [...usermap.keys()],
                 };
                 client.send(JSON.stringify(ret));
               }
