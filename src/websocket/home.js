@@ -213,7 +213,7 @@ module.exports = (wss) => {
           case "user":
             ws.name = received.data;
             usermap.set(ws.name, ws);
-            print(getTeam(ws.name));
+            console.log(getTeam(ws.name));
             wss.clients.forEach(function each(client) {
               if (client.readyState === WebSocket.OPEN) {
                 ret = {
