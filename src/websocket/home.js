@@ -207,6 +207,27 @@ chunkArray = (myArray, chunk_number, res, type) => {
   }
 };
 
+checkdraw = () => {
+  var duplicateteam = Object.assign({}, team);
+  duplicateteam.sort((a, b) => {
+    return a.score - b.score;
+  });
+
+  const maxscore = duplicateteam[0].score;
+  var i = 0;
+  for (team in duplicateteam) {
+    if (team.score === maxscore) {
+      i++;
+    }
+  }
+
+  if (i == 0) {
+    return false;
+  } else {
+    return true;
+  }
+};
+
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     let j = Math.floor(Math.random() * (i + 1));
@@ -393,16 +414,26 @@ module.exports = (wss) => {
               }
             });
             break;
+          case "startex":
+            wss.clients.forEach(function each(client) {
+              if (client.readyState === WebSocket.OPEN) {
+                ret = {
+                  type: "startex",
+                };
+                client.send(JSON.stringify(ret));
+              }
+            });
+            break;
           case "startvote":
-            // console.log("startvote");
             startVote();
+            break;
+          case "startexvote":
+            startexVote();
             break;
           case "vote":
             vote(ws.name, received.data);
             break;
           case "result":
-            game.setTeam(team);
-            game.create();
             wss.clients.forEach(function each(client) {
               if (client.readyState === WebSocket.OPEN) {
                 ret = {
@@ -412,10 +443,33 @@ module.exports = (wss) => {
                 client.send(JSON.stringify(ret));
               }
             });
-            team = {};
-            cards = {};
-            // console.log(voted);
-            voted = new Map();
+            if (checkdraw()) {
+              wss.clients.forEach(function each(client) {
+                if (client.readyState === WebSocket.OPEN) {
+                  ret = {
+                    type: "draw",
+                    data: true,
+                  };
+                  client.send(JSON.stringify(ret));
+                }
+              });
+            } else {
+              wss.clients.forEach(function each(client) {
+                if (client.readyState === WebSocket.OPEN) {
+                  ret = {
+                    type: "draw",
+                    data: false,
+                  };
+                  client.send(JSON.stringify(ret));
+                }
+              });
+              game.setTeam(team);
+              game.create();
+              team = {};
+              cards = {};
+              // console.log(voted);
+              voted = new Map();
+            }
             break;
         }
       }
