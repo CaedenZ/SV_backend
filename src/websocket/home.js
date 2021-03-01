@@ -138,11 +138,17 @@ startVote = () => {
 
 startexVote = () => {
   var duplicateteam = Object.assign({}, team);
-  duplicateteam.sort((a, b) => {
+
+  var sortable = [];
+  for (var t in duplicateteam) {
+    sortable.push([t, duplicateteam[t]]);
+  }
+
+  sortable.sort((a, b) => {
     return a.score - b.score;
   });
 
-  const maxscore = duplicateteam[0].score;
+  const maxscore = sortable[0].score;
   var i = 0;
   for (team in duplicateteam) {
     if (team.score === maxscore) {
@@ -209,11 +215,17 @@ chunkArray = (myArray, chunk_number, res, type) => {
 
 checkdraw = () => {
   var duplicateteam = Object.assign({}, team);
-  duplicateteam.sort((a, b) => {
+
+  var sortable = [];
+  for (var t in duplicateteam) {
+    sortable.push([t, duplicateteam[t]]);
+  }
+
+  sortable.sort((a, b) => {
     return a.score - b.score;
   });
 
-  const maxscore = duplicateteam[0].score;
+  const maxscore = sortable[0].score;
   var i = 0;
   for (team in duplicateteam) {
     if (team.score === maxscore) {
