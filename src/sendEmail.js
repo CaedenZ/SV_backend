@@ -14,22 +14,35 @@ const sendEmail = async (email, subject, payload, template) => {
       },
     });
 
+    // let transporter = nodemailer.createTransport({
+    //   host: "smtp.ethereal.email",
+    //   port: 587,
+    //   secure: false, // true for 465, false for other ports
+    //   auth: {
+    //     user: testAccount.user, // generated ethereal user
+    //     pass: testAccount.pass, // generated ethereal password
+    //   },
+    // });
+
     const source = fs.readFileSync(path.join(__dirname, template), "utf8");
     const compiledTemplate = handlebars.compile(source);
+    console.log(compiledTemplate(payload));
     const options = () => {
       return {
-        from: process.env.FROM_EMAIL,
+        from: "ruidevacc@gmail.com",
         to: email,
         subject: subject,
-        html: compiledTemplate(payload),
+        // text: "That was easy!",
+        text: compiledTemplate(payload),
       };
     };
-
     // Send email
     transporter.sendMail(options(), (error, info) => {
       if (error) {
+        console.log(error);
         return error;
       } else {
+        console.log(info.response);
         return res.status(200).json({
           success: true,
         });

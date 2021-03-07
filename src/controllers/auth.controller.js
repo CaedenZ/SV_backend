@@ -9,7 +9,7 @@ const {
   sendResetToken,
   sendRefreshToken,
 } = require("../token.js");
-const { sendEmail } = require("../sendEmail.js");
+const sendEmail = require("../sendEmail.js");
 const { isAuth } = require("../isAuth.js");
 
 const clientURL = "https://localhost:4000";
@@ -58,11 +58,6 @@ exports.forgot = async (req, res) => {
         token = {
           resettoken,
         };
-        User.updateById(data.id, token, (err, data) => {
-          if (err) {
-            throw err;
-          }
-        });
 
         const link = `${clientURL}/passwordReset?token=${resettoken}&id=${data.id}`;
 
@@ -145,11 +140,6 @@ exports.login = async (req, res) => {
         token = {
           refreshtoken,
         };
-        User.updateById(data.id, token, (err, data) => {
-          if (err) {
-            throw err;
-          }
-        });
 
         sendRefreshToken(res, refreshtoken);
         sendAccessToken(
