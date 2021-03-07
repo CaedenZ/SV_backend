@@ -112,6 +112,7 @@ User.updateById = (id, user, result) => {
         user.score ? user.score : res[0].score,
         user.type ? user.type : res[0].type,
         user.refreshtoken ? user.refreshtoken : res[0].refreshtoken,
+        user.resettoken ? user.resettoken : res[0].resettoken,
         id,
       ],
       (err, res) => {

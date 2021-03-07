@@ -17,6 +17,7 @@ module.exports = (wss) => {
     ws.on("message", function incoming(data) {
       console.log(wss.clients.size);
       received = JSON.parse(data);
+      console.log(received);
       wss.clients.forEach(function each(client) {
         if (client.readyState === WebSocket.OPEN) {
           msg = {

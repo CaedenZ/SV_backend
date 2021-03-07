@@ -9,5 +9,9 @@ module.exports = (server) => {
 
   server.post("/protected", auth.protected);
 
+  server.post("/reset", auth.reset);
+
+  server.post("/forgot", auth.forgot);
+
   server.post("/refresh_token", auth.refreshToken);
 };

@@ -3,11 +3,16 @@ const { verify } = require("jsonwebtoken");
 const { hash, compare } = require("bcryptjs");
 const {
   createAccessToken,
+  createResetToken,
   createRefreshToken,
   sendAccessToken,
+  sendResetToken,
   sendRefreshToken,
 } = require("../token.js");
+const { sendEmail } = require("../sendEmail.js");
 const { isAuth } = require("../isAuth.js");
+
+const clientURL = "https://localhost:4000";
 
 // Create and Save a new User
 exports.register = async (req, res) => {
@@ -39,6 +44,86 @@ exports.register = async (req, res) => {
 };
 
 // Retrieve all Users from the database.
+exports.forgot = async (req, res) => {
+  const { email } = req.body;
+  User.findByEmail(email, async (err, data) => {
+    try {
+      if (err) {
+        if (err.kind === "not_found") throw new Error("User not found");
+        else throw new Error("Error when retrieving");
+      } else {
+        const resettoken = createResetToken(data.id);
+
+        // put refresh token in db
+        token = {
+          resettoken,
+        };
+        User.updateById(data.id, token, (err, data) => {
+          if (err) {
+            throw err;
+          }
+        });
+
+        const link = `${clientURL}/passwordReset?token=${resettoken}&id=${data.id}`;
+
+        sendEmail(
+          email,
+          "Password Reset Request",
+          {
+            name: data.name,
+            link: link,
+          },
+          "./template/requestResetPassword.handlebars"
+        );
+      }
+    } catch (err) {
+      res.send({
+        error: `${err.message}`,
+      });
+    }
+  });
+};
+
+exports.reset = async (req, res) => {
+  const { email, password, token } = req.body;
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content can not be empty!",
+    });
+  }
+
+  User.findByEmail(email, async (err, data) => {
+    try {
+      if (err) {
+        if (err.kind === "not_found") throw new Error("User not found");
+        else throw new Error("Error when retrieving");
+      } else {
+        const valid = await compare(token, data.resettoken).catch((e) => {
+          throw "Other Error";
+        });
+        console.log(valid);
+      }
+    } catch (err) {
+      res.send({
+        error: `${err.message}`,
+      });
+    }
+  });
+
+  const hashpassword = await hash(req.body.password, 10);
+
+  // Save User in the database
+  password = hashpassword;
+
+  User.updateById(user, password, (err, data) => {
+    if (err)
+      res.status(500).send({
+        message: err.message || "Some error occurred.",
+      });
+    else res.send(data);
+  });
+};
+
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   User.findByEmail(email, async (err, data) => {
