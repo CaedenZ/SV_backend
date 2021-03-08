@@ -42,7 +42,7 @@ getCards = () => {
             if (err) console.log(err);
             else {
               chunkArray(data, size, cards, "card");
-              Card.getRandomCard(size, "Hot Trend", (err, data) => {
+              Card.getRandomCard(size * 2, "Hot Trend", (err, data) => {
                 if (err) console.log(err);
                 else {
                   chunkArray(data, size, cards, "card");
@@ -50,7 +50,10 @@ getCards = () => {
                   for (var key in team) {
                     team[key].hotTrend = cards[key].find(
                       (e) => e.type === "Hot Trend"
-                    ).name;
+                    )[0].name;
+                    team[key].extend = cards[key].find(
+                      (e) => e.type === "Hot Trend"
+                    )[1].name;
                     team[key].members.forEach((member) => {
                       data = cards[key];
                       ret = {
