@@ -218,7 +218,7 @@ checkdraw = () => {
 
   var sortable = [];
   for (var t in duplicateteam) {
-    sortable.push([t, duplicateteam[t]]);
+    sortable.push(duplicateteam[t]);
   }
 
   console.log(sortable);
