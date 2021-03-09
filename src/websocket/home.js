@@ -224,7 +224,7 @@ checkdraw = () => {
   console.log(sortable);
 
   sortable.sort((a, b) => {
-    return a.score - b.score;
+    return b.score - a.score;
   });
 
   const maxscore = sortable[0].score;
