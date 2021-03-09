@@ -221,6 +221,8 @@ checkdraw = () => {
     sortable.push([t, duplicateteam[t]]);
   }
 
+  console.log(sortable);
+
   sortable.sort((a, b) => {
     return a.score - b.score;
   });
