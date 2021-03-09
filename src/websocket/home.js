@@ -226,12 +226,17 @@ checkdraw = () => {
   });
 
   const maxscore = sortable[0].score;
+
+  console.log(maxscore);
+
   var i = 0;
   for (team in duplicateteam) {
     if (team.score === maxscore) {
       i++;
     }
   }
+
+  console.log(i);
 
   if (i > 1) {
     return true;
