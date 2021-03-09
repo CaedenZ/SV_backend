@@ -233,10 +233,10 @@ checkdraw = () => {
     }
   }
 
-  if (i == 0) {
-    return false;
-  } else {
+  if (i > 1) {
     return true;
+  } else {
+    return false;
   }
 };
 
