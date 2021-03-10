@@ -233,7 +233,7 @@ checkdraw = () => {
 
   var i = 0;
   for (team in duplicateteam) {
-    if (team.score === maxscore) {
+    if (duplicateteam[team].score === maxscore) {
       i++;
     }
   }
