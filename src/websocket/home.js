@@ -149,14 +149,11 @@ startexVote = () => {
   });
 
   const maxscore = sortable[0].score;
-  var i = 0;
   for (team in duplicateteam) {
-    if (team.score === maxscore) {
-      i++;
+    if (duplicateteam[team].score === maxscore) {
+      delete duplicateteam[team];
     }
   }
-
-  voteTeams = duplicateteam.splice(0, i);
 
   for (var key in duplicateteam) {
     duplicateteam[key].members.forEach((member) => {
