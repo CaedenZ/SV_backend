@@ -3,10 +3,13 @@ const { verify } = require("jsonwebtoken");
 const { hash, compare } = require("bcryptjs");
 const {
   createAccessToken,
+  createResetToken,
   createRefreshToken,
   sendAccessToken,
+  sendResetToken,
   sendRefreshToken,
 } = require("../token.js");
+const sendEmail = require("../sendEmail.js");
 const { isAuth } = require("../isAuth.js");
 
 // Create and Save a new User
@@ -78,6 +81,93 @@ exports.login = async (req, res) => {
           data.name,
           data.type
         );
+      }
+    } catch (err) {
+      res.send({
+        error: `${err.message}`,
+      });
+    }
+  });
+};
+
+exports.forgot = async (req, res) => {
+  const { email } = req.body;
+  User.findByEmail(email, async (err, data) => {
+    try {
+      if (err) {
+        if (err.kind === "not_found") throw new Error("User not found");
+        else throw new Error("Error when retrieving");
+      } else {
+        const resettoken = createResetToken(data.id);
+
+        // put refresh token in db
+        token = { resettoken };
+
+        User.updateById(data.id, token, (err, data) => {
+          if (err) {
+            throw err;
+          }
+        });
+
+        console.log(`Updating session for user ${data.name}`);
+
+        const link = `${process.env.clientURL}/resetpassword?token=${resettoken}&id=${data.id}`;
+        console.log(link);
+        sendEmail(
+          email,
+          "Password Reset Request",
+          {
+            name: data.name,
+            link: link,
+          },
+          "./template/requestResetPassword.hbs"
+        );
+        res.send({
+          data: "success",
+        });
+      }
+    } catch (err) {
+      res.send({
+        error: `${err.message}`,
+      });
+    }
+  });
+};
+
+exports.reset = async (req, res) => {
+  const { password, id, token } = req.body;
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content can not be empty!",
+    });
+  }
+
+  User.findById(id, async (err, data) => {
+    try {
+      if (err) {
+        if (err.kind === "not_found") throw new Error("User not found");
+        else throw new Error("Error when retrieving");
+      } else {
+        console.log("t " + token);
+        console.log("rt " + data.resettoken);
+        if (token == data.resettoken) {
+          const hashpassword = await hash(req.body.password, 10);
+
+          // Save User in the database
+          const newpassword = { password: hashpassword };
+
+          User.updateById(id, newpassword, (err, data) => {
+            if (err)
+              res.status(500).send({
+                message: err.message || "Some error occurred.",
+              });
+            else res.send(data);
+          });
+        } else {
+          res.send({
+            error: "Token does not match, get a new one.",
+          });
+        }
       }
     } catch (err) {
       res.send({
