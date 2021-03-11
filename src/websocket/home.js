@@ -48,10 +48,10 @@ getCards = () => {
                   chunkArray(data, size, cards, "card");
                   console.log(cards);
                   for (var key in team) {
-                    team[key].hotTrend = cards[key].find(
+                    team[key].hotTrend = cards[key].filter(
                       (e) => e.type === "Hot Trend"
                     )[0].name;
-                    team[key].extend = cards[key].find(
+                    team[key].extend = cards[key].filter(
                       (e) => e.type === "Hot Trend"
                     )[1].name;
                     team[key].members.forEach((member) => {
@@ -60,7 +60,7 @@ getCards = () => {
                         type: "card",
                         data: data,
                       };
-                      console.log(map.get(member));
+                      // console.log(map.get(member));
                       map.get(member).send(JSON.stringify(ret));
                     });
                   }
@@ -136,12 +136,46 @@ startVote = () => {
   }
 };
 
+startexVote = () => {
+  var duplicateteam = Object.assign({}, team);
+
+  var sortable = [];
+  for (var t in duplicateteam) {
+    sortable.push([t, duplicateteam[t]]);
+  }
+
+  sortable.sort((a, b) => {
+    return a.score - b.score;
+  });
+
+  const maxscore = sortable[0].score;
+  var i = 0;
+  for (team in duplicateteam) {
+    if (team.score === maxscore) {
+      i++;
+    }
+  }
+
+  voteTeams = duplicateteam.splice(0, i);
+
+  for (var key in duplicateteam) {
+    duplicateteam[key].members.forEach((member) => {
+      data = voteTeams;
+      ret = {
+        type: "startexvote",
+        data: data,
+      };
+      map.get(member).send(JSON.stringify(ret));
+    });
+  }
+};
+
 vote = (name, data) => {
   if (!voted.has(name)) {
     team[data.team].score += 1;
     voted.set(name, data.team);
   }
-  console.log(team);
+  // console.log(team);
 };
 
 assignTeams = (teamNumber) => {
@@ -152,14 +186,20 @@ assignTeams = (teamNumber) => {
     tmp[i] = {
       name: "",
       members: [],
-      cards: { companyName: "", targetUser: "", industry: "", hotTrend: "" },
+      cards: {
+        companyName: "",
+        targetUser: "",
+        industry: "",
+        hotTrend: "",
+        extend: "",
+      },
       score: 0,
     };
     cards[i] = [];
   }
   chunkArray(array, teamNumber, tmp, "team");
   team = tmp;
-  console.log(team);
+  // console.log(team);
 };
 
 chunkArray = (myArray, chunk_number, res, type) => {
@@ -167,9 +207,43 @@ chunkArray = (myArray, chunk_number, res, type) => {
 
   for (var index = 0; index < arrayLength; index++) {
     // Do something if you want with the group
-    console.log(myArray[index]);
+    // console.log(myArray[index]);
     if (type === "team") res[index % chunk_number].members.push(myArray[index]);
     else if (type === "card") res[index % chunk_number].push(myArray[index]);
+  }
+};
+
+checkdraw = () => {
+  var duplicateteam = Object.assign({}, team);
+
+  var sortable = [];
+  for (var t in duplicateteam) {
+    sortable.push(duplicateteam[t]);
+  }
+
+  console.log(sortable);
+
+  sortable.sort((a, b) => {
+    return b.score - a.score;
+  });
+
+  const maxscore = sortable[0].score;
+
+  console.log(maxscore);
+
+  var i = 0;
+  for (team in duplicateteam) {
+    if (duplicateteam[team].score === maxscore) {
+      i++;
+    }
+  }
+
+  console.log(i);
+
+  if (i > 1) {
+    return true;
+  } else {
+    return false;
   }
 };
 
@@ -217,7 +291,7 @@ module.exports = (wss) => {
             ws.name = received.data;
             usermap.set(ws.name, ws);
             if ((teamNo = getTeam(ws.name))) {
-              console.log("ss");
+              // console.log("ss");
               ret = {
                 type: "start",
               };
@@ -258,7 +332,7 @@ module.exports = (wss) => {
               };
               ws.send(JSON.stringify(ret));
             } else {
-              console.log("aa");
+              // console.log("aa");
             }
             wss.clients.forEach(function each(client) {
               if (client.readyState === WebSocket.OPEN) {
@@ -329,7 +403,7 @@ module.exports = (wss) => {
             getCards();
             break;
           case "select":
-            console.log(received.data);
+            // console.log(received.data);
             receiveCard(ws.name, received.data);
             adminmap.forEach((value, key, map) => {
               ret = {
@@ -359,16 +433,26 @@ module.exports = (wss) => {
               }
             });
             break;
+          case "startex":
+            wss.clients.forEach(function each(client) {
+              if (client.readyState === WebSocket.OPEN) {
+                ret = {
+                  type: "startex",
+                };
+                client.send(JSON.stringify(ret));
+              }
+            });
+            break;
           case "startvote":
-            console.log("startvote");
             startVote();
+            break;
+          case "startexvote":
+            startexVote();
             break;
           case "vote":
             vote(ws.name, received.data);
             break;
           case "result":
-            game.setTeam(team);
-            game.create();
             wss.clients.forEach(function each(client) {
               if (client.readyState === WebSocket.OPEN) {
                 ret = {
@@ -378,10 +462,33 @@ module.exports = (wss) => {
                 client.send(JSON.stringify(ret));
               }
             });
-            team = {};
-            cards = {};
-            console.log(voted);
-            voted = new Map();
+            if (checkdraw()) {
+              wss.clients.forEach(function each(client) {
+                if (client.readyState === WebSocket.OPEN) {
+                  ret = {
+                    type: "draw",
+                    data: true,
+                  };
+                  client.send(JSON.stringify(ret));
+                }
+              });
+            } else {
+              wss.clients.forEach(function each(client) {
+                if (client.readyState === WebSocket.OPEN) {
+                  ret = {
+                    type: "draw",
+                    data: false,
+                  };
+                  client.send(JSON.stringify(ret));
+                }
+              });
+              game.setTeam(team);
+              game.create();
+              team = {};
+              cards = {};
+              // console.log(voted);
+              voted = new Map();
+            }
             break;
         }
       }
