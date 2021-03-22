@@ -122,6 +122,7 @@ getUniqueID = () => {
 };
 
 startVote = () => {
+  voted = new Map();
   for (var key in team) {
     team[key].members.forEach((member) => {
       var duplicateteam = Object.assign({}, team);
@@ -137,30 +138,12 @@ startVote = () => {
 };
 
 startexVote = () => {
-  var duplicateteam = Object.assign({}, team);
-
-  var sortable = [];
-  for (var t in duplicateteam) {
-    sortable.push([t, duplicateteam[t]]);
-  }
-
-  sortable.sort((a, b) => {
-    return a.score - b.score;
-  });
-
-  const maxscore = sortable[0].score;
-  var i = 0;
-  for (team in duplicateteam) {
-    if (team.score === maxscore) {
-      i++;
-    }
-  }
-
-  voteTeams = duplicateteam.splice(0, i);
-
-  for (var key in duplicateteam) {
-    duplicateteam[key].members.forEach((member) => {
-      data = voteTeams;
+  voted = new Map();
+  for (var key in team) {
+    team[key].members.forEach((member) => {
+      var duplicateteam = Object.assign({}, team);
+      delete duplicateteam[key];
+      data = duplicateteam;
       ret = {
         type: "startexvote",
         data: data,
