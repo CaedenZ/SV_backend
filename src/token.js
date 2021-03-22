@@ -12,6 +12,21 @@ const createRefreshToken = (userId) => {
   });
 };
 
+const createResetToken = (userId) => {
+  return sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "15m",
+  });
+};
+
+const sendResetToken = (res, req, resettoken, name, type) => {
+  res.send({
+    resettoken,
+    email: req.body.email,
+    name: name,
+    type: type,
+  });
+};
+
 const sendAccessToken = (res, req, accesstoken, refreshtoken, name, type) => {
   res.send({
     accesstoken,
@@ -32,6 +47,8 @@ const sendRefreshToken = (res, refreshtoken) => {
 module.exports = {
   createAccessToken,
   createRefreshToken,
+  createResetToken,
   sendAccessToken,
   sendRefreshToken,
+  sendResetToken,
 };

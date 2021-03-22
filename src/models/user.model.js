@@ -24,7 +24,7 @@ User.create = (newUser, result) => {
 
 User.findById = (userId, result) => {
   sql.query(
-    `SELECT id, email, name, score, type FROM users WHERE id = ${userId}`,
+    `SELECT id, email, name, resettoken, score, type FROM users WHERE id = ${userId}`,
     (err, res) => {
       if (err) {
         console.log("error: ", err);
@@ -104,7 +104,7 @@ User.updateById = (id, user, result) => {
     }
 
     sql.query(
-      "UPDATE users SET email = ?, name = ?, password=?, score = ?, type = ?, refreshtoken = ? WHERE id = ?",
+      "UPDATE users SET email = ?, name = ?, password=?, score = ?, type = ?, refreshtoken = ?, resettoken = ? WHERE id = ?",
       [
         user.email ? user.email : res[0].email,
         user.name ? user.name : res[0].name,
@@ -112,6 +112,7 @@ User.updateById = (id, user, result) => {
         user.score ? user.score : res[0].score,
         user.type ? user.type : res[0].type,
         user.refreshtoken ? user.refreshtoken : res[0].refreshtoken,
+        user.resettoken ? user.resettoken : res[0].resettoken,
         id,
       ],
       (err, res) => {
