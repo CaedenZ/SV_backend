@@ -122,6 +122,7 @@ getUniqueID = () => {
 };
 
 startVote = () => {
+  voted = new Map();
   for (var key in team) {
     team[key].members.forEach((member) => {
       var duplicateteam = Object.assign({}, team);
