@@ -138,6 +138,7 @@ startVote = () => {
 };
 
 startexVote = () => {
+  voted = new Map();
   var duplicateteam = Object.assign({}, team);
 
   var sortable = [];
