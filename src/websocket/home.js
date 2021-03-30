@@ -141,23 +141,32 @@ startexVote = () => {
 
   var sortable = [];
   for (var t in duplicateteam) {
-    sortable.push([t, duplicateteam[t]]);
+    sortable.push(duplicateteam[t]);
   }
 
+  console.log(sortable);
+
   sortable.sort((a, b) => {
-    return a.score - b.score;
+    return b.score - a.score;
   });
 
   const maxscore = sortable[0].score;
-  for (team in duplicateteam) {
-    if (duplicateteam[team].score === maxscore) {
-      delete duplicateteam[team];
+
+  console.log(maxscore);
+
+  for (t in duplicateteam) {
+    if (duplicateteam[t].score < maxscore) {
+      delete duplicateteam[t];
+      console.log("delete" + t);
     }
   }
 
-  for (var key in duplicateteam) {
-    duplicateteam[key].members.forEach((member) => {
-      data = voteTeams;
+  console.log("checkDupTeam");
+  console.log(duplicateteam);
+
+  for (var key in team) {
+    team[key].members.forEach((member) => {
+      data = duplicateteam;
       ret = {
         type: "startexvote",
         data: data,
@@ -210,7 +219,18 @@ chunkArray = (myArray, chunk_number, res, type) => {
   }
 };
 
+endgame = () => {
+  game.setTeam(team);
+  game.create();
+  team = {};
+  cards = {};
+  // console.log(voted);
+  voted = new Map();
+};
+
 checkdraw = () => {
+  console.log("Start CheckDraw");
+  console.log(team);
   var duplicateteam = Object.assign({}, team);
 
   var sortable = [];
@@ -229,13 +249,14 @@ checkdraw = () => {
   console.log(maxscore);
 
   var i = 0;
-  for (team in duplicateteam) {
-    if (duplicateteam[team].score === maxscore) {
+  for (t in duplicateteam) {
+    if (duplicateteam[t].score === maxscore) {
       i++;
     }
   }
 
-  console.log(i);
+  console.log("After CheckDraw");
+  console.log(team);
 
   if (i > 1) {
     return true;
@@ -479,13 +500,10 @@ module.exports = (wss) => {
                   client.send(JSON.stringify(ret));
                 }
               });
-              game.setTeam(team);
-              game.create();
-              team = {};
-              cards = {};
-              // console.log(voted);
-              voted = new Map();
             }
+            break;
+          case "end":
+            endgame();
             break;
         }
       }
