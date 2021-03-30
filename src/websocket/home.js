@@ -298,6 +298,12 @@ module.exports = (wss) => {
       const userId = req.session.userId;
 
       map.set(userId, ws);
+
+      ret = {
+        type: "number",
+        data: [...usermap.keys()],
+      };
+      ws.send(JSON.stringify(ret));
     }
 
     ws.on("message", function incoming(data) {
@@ -502,6 +508,7 @@ module.exports = (wss) => {
                   client.send(JSON.stringify(ret));
                 }
               });
+              endgame();
             }
             break;
           case "end":
