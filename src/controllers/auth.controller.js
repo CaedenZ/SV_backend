@@ -111,7 +111,7 @@ exports.forgot = async (req, res) => {
 
         console.log(`Updating session for user ${data.name}`);
 
-        const link = `${process.env.clientURL}/resetpassword?token=${resettoken}&id=${data.id}`;
+        const link = `http://ec2-3-129-14-157.us-east-2.compute.amazonaws.com/resetpassword?token=${resettoken}&id=${data.id}`;
         console.log(link);
         sendEmail(
           email,
