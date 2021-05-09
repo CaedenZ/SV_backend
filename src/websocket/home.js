@@ -168,7 +168,11 @@ startexVote = () => {
 
   for (var key in team) {
     team[key].members.forEach((member) => {
-      data = duplicateteam;
+      var data = Object.assign({}, duplicateteam);
+      var k = Object.keys(data).find((e) => {
+        return e.members.includes(member);
+      });
+      delete data[k];
       ret = {
         type: "startexvote",
         data: data,
