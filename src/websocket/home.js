@@ -74,6 +74,31 @@ getCards = () => {
   });
 };
 
+getEXCards = () => {
+  var size = Object.keys(team).length;
+  Card.getRandomCard(size, "Hot Trend", (err, data) => {
+    if (err) console.log(err);
+    else {
+      chunkArray(data, size, cards, "card");
+      console.log(cards);
+      for (var key in team) {
+        team[key].hotTrend = cards[key].filter(
+          (e) => e.type === "Hot Trend"
+        )[0].name;
+        team[key].members.forEach((member) => {
+          data = cards[key];
+          ret = {
+            type: "card",
+            data: data,
+          };
+          // console.log(map.get(member));
+          map.get(member).send(JSON.stringify(ret));
+        });
+      }
+    }
+  });
+};
+
 receiveCard = (name, data) => {
   switch (data.type) {
     case "Company Name":
@@ -170,7 +195,7 @@ startexVote = () => {
     team[key].members.forEach((member) => {
       var data = Object.assign({}, duplicateteam);
       var k = Object.keys(data).find((e) => {
-        return e.members.includes(member);
+        return data[e].members.includes(member);
       });
       delete data[k];
       ret = {
@@ -226,12 +251,38 @@ chunkArray = (myArray, chunk_number, res, type) => {
 };
 
 endgame = () => {
+  getrank();
+  var scores = [100, 70, 50];
+  Object.keys(team).forEach(function (key) {
+    var player = team[key];
+    if (player.rank >= scores.length) {
+      player.score = 20;
+    } else {
+      player.score = scores[scores[player.rank]];
+    }
+  });
   game.setTeam(team);
   game.create();
   team = {};
   cards = {};
   // console.log(voted);
   voted = new Map();
+};
+
+getrank = () => {
+  var scores = new Set(
+    Object.keys(team).map(function (key) {
+      return team[key].score;
+    })
+  );
+  var ordered_scores = Array.from(scores).sort(function (a, b) {
+    return b - a;
+  });
+  Object.keys(team).forEach(function (key) {
+    var player = team[key];
+    player.rank = ordered_scores.indexOf(player.score);
+  });
+  console.log(team);
 };
 
 checkdraw = () => {
