@@ -1,13 +1,11 @@
-const sql = require("./db.js");
+const util = require("util");
+const conn = require("./db.js");
+const sql = util.promisify(conn.query).bind(conn);
 // constructor
 class Game {
-  constructor() {
+  constructor(teams) {
     this.date = new Date();
     this.status = "End";
-    this.teams = {};
-  }
-
-  setTeam(teams) {
     this.teams = teams;
   }
 
@@ -17,18 +15,18 @@ class Game {
       date: this.date,
       status: this.status,
     };
-    sql.query("INSERT INTO games SET ?", data, (err, res) => {
+    sql("INSERT INTO games SET ?", data, async (err, res) => {
       if (err) {
         console.log("error: ", err);
         result(err, null);
         return;
       }
       console.log("created game: ", { id: res.insertId, ...this.game });
-      this.updateTeam(res.insertId);
+      await this.updateTeam(res.insertId);
     });
   }
 
-  updateTeam(gid) {
+  async updateTeam(gid) {
     for (var key in this.teams) {
       let data = {
         teamScore: this.teams[key].score,
@@ -38,60 +36,50 @@ class Game {
         hotTrend: this.teams[key].hotTrend,
         gID: gid,
       };
-      sql.query("INSERT INTO teams SET ?", data, (err, res) => {
-        if (err) {
-          console.log("error: ", err);
-          return;
-        }
-
+      try {
+        const res = await sql("INSERT INTO teams SET ?", data);
         console.log("created team: ", { id: res.insertId, ...data });
+        console.log(this.teams);
+        console.log(key);
         this.teams[key].members.forEach((member) => {
+          console.log(member);
           this.updateMember(member, res.insertId, this.teams[key].score);
         });
-      });
+      } catch (err) {
+        console.log("error: ", err);
+        return;
+      }
     }
   }
 
   async updateMember(name, tid, score) {
-    sql.query(
-      `SELECT id, score FROM users WHERE name = \"${name}\"`,
-      (err, res) => {
-        if (err) {
-          console.log("error: ", err);
-          return;
-        }
-
-        if (res.length) {
-          console.log("found user: ", res[0]);
-          let foundUser = res[0];
-          let data = {
-            tid,
-            uid: foundUser.id,
-          };
-          sql.query("INSERT INTO team_user SET ?", data, (err, res) => {
-            if (err) {
-              console.log("error: ", err);
-              return;
-            }
-
-            let user = {
-              score: score + foundUser.score,
-            };
-            this.updateScore(foundUser.id, user);
-          });
-        }
+    try {
+      var res = await sql(
+        `SELECT id, score FROM users WHERE name = \"${name}\"`
+      );
+      if (res.length) {
+        console.log("found user: ", res[0]);
+        let foundUser = res[0];
+        let data = {
+          tid,
+          uid: foundUser.id,
+        };
+        res = await sql("INSERT INTO team_user SET ?", data);
+        let user = {
+          score: score + foundUser.score,
+        };
+        this.updateScore(foundUser.id, user);
       }
-    );
+    } catch (err) {
+      console.log("error: ", err);
+      return;
+    }
   }
 
-  updateScore(id, user) {
-    sql.query(`SELECT * FROM users WHERE id = ${id}`, (err, res) => {
-      if (err) {
-        console.log("error: ", err);
-        return;
-      }
-
-      sql.query(
+  async updateScore(id, user) {
+    try {
+      var res = await sql(`SELECT * FROM users WHERE id = ${id}`);
+      var res = await sql(
         "UPDATE users SET email = ?, name = ?, password=?, score = ?, type = ?, refreshtoken = ? WHERE id = ?",
         [
           user.email ? user.email : res[0].email,
@@ -101,22 +89,19 @@ class Game {
           user.type ? user.type : res[0].type,
           user.refreshtoken ? user.refreshtoken : res[0].refreshtoken,
           id,
-        ],
-        (err, res) => {
-          if (err) {
-            console.log("error: ", err);
-            return;
-          }
-
-          if (res.affectedRows == 0) {
-            // not found User with the id
-            return;
-          }
-
-          console.log("updated user: ", { id: id, ...user });
-        }
+        ]
       );
-    });
+
+      if (res.affectedRows == 0) {
+        // not found User with the id
+        return;
+      }
+
+      console.log("updated user: ", { id: id, ...user });
+    } catch (err) {
+      console.log("error: ", err);
+      return;
+    }
   }
 }
 

@@ -6,7 +6,6 @@ let map = new Map();
 let team = {};
 let cards = {};
 let voted = new Map();
-let game = new Game();
 let usermap = new Map();
 let adminmap = new Map();
 
@@ -46,7 +45,6 @@ getCards = () => {
                 if (err) console.log(err);
                 else {
                   chunkArray(data, size, cards, "card");
-                  console.log(cards);
                   for (var key in team) {
                     team[key].hotTrend = cards[key].filter(
                       (e) => e.type === "Hot Trend"
@@ -60,7 +58,6 @@ getCards = () => {
                         type: "card",
                         data: data,
                       };
-                      // console.log(map.get(member));
                       map.get(member).send(JSON.stringify(ret));
                     });
                   }
@@ -80,7 +77,6 @@ getEXCards = () => {
     if (err) console.log(err);
     else {
       chunkArray(data, size, cards, "card");
-      console.log(cards);
       for (var key in team) {
         team[key].hotTrend = cards[key].filter(
           (e) => e.type === "Hot Trend"
@@ -91,7 +87,6 @@ getEXCards = () => {
             type: "card",
             data: data,
           };
-          // console.log(map.get(member));
           map.get(member).send(JSON.stringify(ret));
         });
       }
@@ -171,25 +166,17 @@ startexVote = () => {
     sortable.push(duplicateteam[t]);
   }
 
-  console.log(sortable);
-
   sortable.sort((a, b) => {
     return b.score - a.score;
   });
 
   const maxscore = sortable[0].score;
 
-  console.log(maxscore);
-
   for (t in duplicateteam) {
     if (duplicateteam[t].score < maxscore) {
       delete duplicateteam[t];
-      console.log("delete" + t);
     }
   }
-
-  console.log("checkDupTeam");
-  console.log(duplicateteam);
 
   for (var key in team) {
     team[key].members.forEach((member) => {
@@ -212,7 +199,6 @@ vote = (name, data) => {
     team[data.team].score += 1;
     voted.set(name, data.team);
   }
-  // console.log(team);
 };
 
 assignTeams = (teamNumber) => {
@@ -236,15 +222,12 @@ assignTeams = (teamNumber) => {
   }
   chunkArray(array, teamNumber, tmp, "team");
   team = tmp;
-  // console.log(team);
 };
 
 chunkArray = (myArray, chunk_number, res, type) => {
   var arrayLength = myArray.length;
 
   for (var index = 0; index < arrayLength; index++) {
-    // Do something if you want with the group
-    // console.log(myArray[index]);
     if (type === "team") res[index % chunk_number].members.push(myArray[index]);
     else if (type === "card") res[index % chunk_number].push(myArray[index]);
   }
@@ -253,19 +236,19 @@ chunkArray = (myArray, chunk_number, res, type) => {
 endgame = () => {
   getrank();
   var scores = [100, 70, 50];
+  console.log("team");
   Object.keys(team).forEach(function (key) {
-    var player = team[key];
-    if (player.rank >= scores.length) {
-      player.score = 20;
+    console.log(team[key].members);
+    if (team[key].rank >= scores.length) {
+      team[key].score = 20;
     } else {
-      player.score = scores[scores[player.rank]];
+      team[key].score = scores[team[key].rank];
     }
   });
-  game.setTeam(team);
+  let game = new Game(team);
   game.create();
   team = {};
   cards = {};
-  // console.log(voted);
   voted = new Map();
 };
 
@@ -282,12 +265,9 @@ getrank = () => {
     var player = team[key];
     player.rank = ordered_scores.indexOf(player.score);
   });
-  console.log(team);
 };
 
 checkdraw = () => {
-  console.log("Start CheckDraw");
-  console.log(team);
   var duplicateteam = Object.assign({}, team);
 
   var sortable = [];
@@ -295,15 +275,11 @@ checkdraw = () => {
     sortable.push(duplicateteam[t]);
   }
 
-  console.log(sortable);
-
   sortable.sort((a, b) => {
     return b.score - a.score;
   });
 
   const maxscore = sortable[0].score;
-
-  console.log(maxscore);
 
   var i = 0;
   for (t in duplicateteam) {
@@ -311,9 +287,6 @@ checkdraw = () => {
       i++;
     }
   }
-
-  console.log("After CheckDraw");
-  console.log(team);
 
   if (i > 1) {
     return true;
@@ -372,7 +345,6 @@ module.exports = (wss) => {
             ws.name = received.data;
             usermap.set(ws.name, ws);
             if ((teamNo = getTeam(ws.name))) {
-              // console.log("ss");
               ret = {
                 type: "start",
               };
@@ -413,7 +385,6 @@ module.exports = (wss) => {
               };
               ws.send(JSON.stringify(ret));
             } else {
-              // console.log("aa");
             }
             wss.clients.forEach(function each(client) {
               if (client.readyState === WebSocket.OPEN) {
@@ -484,7 +455,6 @@ module.exports = (wss) => {
             getCards();
             break;
           case "select":
-            // console.log(received.data);
             receiveCard(ws.name, received.data);
             adminmap.forEach((value, key, map) => {
               ret = {
