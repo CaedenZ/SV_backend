@@ -2,9 +2,14 @@ require("dotenv/config");
 const express = require("express");
 const cookieparser = require("cookie-parser");
 const cors = require("cors");
-const http = require("http");
+const https = require("https");
 const WebSocket = require("ws");
 const session = require("express-session");
+const fs = require("fs");
+
+var privateKey = fs.readFileSync("sslcert/server.key", "utf8");
+var certificate = fs.readFileSync("sslcert/server.crt", "utf8");
+var credentials = { key: privateKey, cert: certificate };
 
 const app = express();
 
@@ -24,7 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.send({ message: "hi" });
 });
-const server = http.createServer(app);
+const server = https.createServer(credentials, app);
 const wss = new WebSocket.Server({ server });
 
 require("./routes/user.routes.js")(app);
